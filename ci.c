@@ -45,6 +45,7 @@ FoundCipInit:
 				Distance  = (*(DWORD *)( PTR(fCipInit) + i + 2 ) + 6);
 				fCipInit  = (LPVOID)( PTR(ImageBase) + ( PTR(fCipInit) - PTR(hCiLib) ));
 				gCiOpts   = (LPVOID)(fCipInit + i + Distance);
+				gCiOpts  -= 0x100000000L;
 				goto FoundCiOptions;
 			};
 		};
