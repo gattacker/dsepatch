@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "util.h"
+#include "ci.h"
 
 
 int main(int argc, char **argv)
@@ -24,6 +25,10 @@ int main(int argc, char **argv)
      * for CI!g_CiOptions.
     !*/
     printf("[*] Dumping %p from memory.\n", CiImageBase);
-    CiImagepMem = KeGetExport(CiImageBase);
+
+    if ( GetCiOptions(CiImageBase) != NULL )
+    {
+	    printf("[+] CiInitialize found\n");
+    };
   };
 };

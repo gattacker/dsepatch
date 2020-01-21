@@ -54,7 +54,7 @@ LPVOID KeGetBase(
 	return ImageBasePtr;
 };
 
-LPVOID KeGetExport(
+/*LPVOID KeGetExport(
 	LPVOID ImageBase
 )
 {
@@ -64,8 +64,8 @@ LPVOID KeGetExport(
 	PIMAGE_EXPORT_DIRECTORY Export;
 	DWORD                   ExpOff;
 	DWORD                   ExpLen;
-	ULONG32                *FunPtr;
-	ULONG32                *StrPtr;
+	DWORD                  *FunPtr;
+	DWORD                  *StrPtr;
 	USHORT                 *OrdPtr;
 
 	RtlSecureZeroMemory(&DosHdr, sizeof(IMAGE_DOS_HEADER));
@@ -120,6 +120,17 @@ LPVOID KeGetExport(
 			printf("[ ] KeDumpImage : 0x%x\n", GetLastError());
 			goto Cleanup;
 		};
+
+		FunPtr = (PDWORD)  (ImageBase + Export->AddressOfFunctions);
+		StrPtr = (PDWORD)  (ImageBase + Export->AddressOfNames);
+		OrdPtr = (PUSHORT) (ImageBase + Export->AddressOfNameOrdinals);
+
+		for (
+		  int i = 0 ; i < Export->NumberOfNames ; i++ 
+		)
+		{
+			while ( szPath[len
+		};
 	} else {
 		printf("[ ] KeDumpImage : 0x%x\n", GetLastError());
 	};
@@ -131,4 +142,4 @@ Cleanup:
 		HeapFree(GetProcessHeap(), 0, Export);
 
 	return NULL;
-};
+};*/
