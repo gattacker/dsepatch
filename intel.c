@@ -57,3 +57,16 @@ BOOL GetPhys(
 	};
 	return FALSE;
 };
+
+HANDLE GetHandle()
+{
+	return CreateFileA(
+		"\\\\.\\Nal",
+		GENERIC_READ | GENERIC_WRITE,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+};

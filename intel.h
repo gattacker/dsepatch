@@ -35,4 +35,6 @@ BOOL GetPhys(
 	ULONG64 *lpPhysicalAddress
 );
 
+HANDLE GetHandle();
+
 #endif
