@@ -6,8 +6,7 @@
 #include "driver.h"
 
 LPVOID GetDrvBase(
-	PCHAR szDriverName,
-	DWORD *SizeOfImage
+	PCHAR szDriverName
 )
 {
 	LPVOID ImageBasePtr;
@@ -16,11 +15,9 @@ LPVOID GetDrvBase(
 	PSYSTEM_MODULE_INFORMATION SystemModInfo;
 	PSYSTEM_MODULE_ENTRY       SystemModEntry;
 	
-	if ( *SizeOfImage != 0 )
-		*SizeOfImage = 0;
-
 	NtQuerySystemInformation(SystemModuleInformation, &StructSize, 0, &StructSize);
 
+	ImageBasePtr = NULL;
 	if ( (SystemModInfo = HeapAlloc(
 			GetProcessHeap(), 
 			HEAP_ZERO_MEMORY, 
@@ -39,9 +36,7 @@ LPVOID GetDrvBase(
 			szModuleName = SystemModEntry[i].FullPathName
 				+ SystemModEntry[i].OffsetToFileName;
 
-			if ( strcmp(szModuleName, szDriverName) == 0 )
-			{
-				*SizeOfImage = SystemModEntry[i].ImageSize;
+			if ( strcmp(szModuleName, szDriverName) == 0 ) {
 				ImageBasePtr = SystemModEntry[i].ImageBase;
 			};
 		};

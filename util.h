@@ -29,8 +29,7 @@ typedef struct _SYSTEM_MODULE_INFORMATION
 
 
 LPVOID GetDrvBase(
-	PCHAR szDriverName,
-	DWORD * SizeOfImage
+	PCHAR szDriverName
 );
 
 BOOL DumpToFile(

