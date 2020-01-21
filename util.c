@@ -74,8 +74,8 @@ BOOL DumpToFile(
 	if ( hDriverFile != INVALID_HANDLE_VALUE ) {
 		WriteFile(
 			hDriverFile,
-		  	drv_str_iqvw64e,
-		  	sizeof( drv_str_iqvw64e ),
+		  	&drvbuf,
+		  	34568,
 		  	&NumBytes,
 			NULL
 		);

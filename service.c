@@ -40,11 +40,6 @@ BOOL LoadDriver(
   BOOL      boolRetVal   = FALSE;
 
   szDriverSvc = ExtractService(szDriverPath);
-  if ( szDriverSvc == NULL ) {
-	  printf("[ ] LoadDriver() : Please provide a full path\n");
-	  return FALSE;
-  };
-
   ServiceMan = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
   if ( ServiceMan != NULL ) {
     ServicePtr = CreateServiceA(ServiceMan, szDriverSvc, szDriverSvc,
@@ -60,6 +55,8 @@ BOOL LoadDriver(
     };
     CloseServiceHandle(ServiceMan);
   };
+  if ( szDriverSvc != NULL )
+	  free(szDriverSvc);
   return boolRetVal;
 };
 
@@ -74,11 +71,6 @@ BOOL UnloadDriver(
   BOOL           boolRetVal   = FALSE;
 
   szDriverSvc = ExtractService(szDriverPath);
-  if ( szDriverSvc == NULL ) {
-	  printf("[ ] UnloadDriver() : Please provide a full path\n");
-	  return FALSE;
-  };
-
   ServiceMan = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
   if ( ServiceMan != NULL ) {
     ServicePtr = OpenServiceA(ServiceMan, 
@@ -96,5 +88,7 @@ BOOL UnloadDriver(
     };
     CloseServiceHandle(ServiceMan);
   };
+  if ( szDriverSvc != NULL )
+	  free(szDriverSvc);
   return boolRetVal;
 };
