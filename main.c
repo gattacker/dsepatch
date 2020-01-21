@@ -24,6 +24,6 @@ int main(int argc, char **argv)
      * for CI!g_CiOptions.
     !*/
     printf("[*] Dumping %p from memory.\n", CiImageBase);
-    CiImagepMem = KeDumpImage(CiImageBase, CiOptionsLen);
+    CiImagepMem = KeGetExport(CiImageBase);
   };
 };

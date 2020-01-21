@@ -54,25 +54,27 @@ LPVOID KeGetBase(
 	return ImageBasePtr;
 };
 
-LPVOID KeDumpImage(
-	LPVOID ImageBase,
-	DWORD ImageSize
+LPVOID KeGetExport(
+	LPVOID ImageBase
 )
 {
-	LPVOID           lpMemoryImage = NULL;
-	HANDLE           hDriver       = NULL;
-
-	IMAGE_DOS_HEADER DosHdr;
-	IMAGE_NT_HEADERS NtHdr;
+	HANDLE                  hDriver;
+	IMAGE_DOS_HEADER        DosHdr;
+	IMAGE_NT_HEADERS        NtHdr;
+	PIMAGE_EXPORT_DIRECTORY Export;
+	DWORD                   ExpOff;
+	DWORD                   ExpLen;
+	ULONG32                *FunPtr;
+	ULONG32                *StrPtr;
+	USHORT                 *OrdPtr;
 
 	RtlSecureZeroMemory(&DosHdr, sizeof(IMAGE_DOS_HEADER));
 	RtlSecureZeroMemory(&NtHdr, sizeof(IMAGE_NT_HEADERS));
+	RtlSecureZeroMemory(&Export, sizeof(IMAGE_EXPORT_DIRECTORY));
 
 	hDriver = GetHandle();
 	if ( hDriver != INVALID_HANDLE_VALUE )
 	{
-		LPVOID pMemoryPtr;
-		LPVOID pImageEnd;
 		if ( MemCpy(
 			hDriver,
 			(ULONG_PTR)&DosHdr,
@@ -97,46 +99,27 @@ LPVOID KeDumpImage(
 			goto Cleanup;
 		};
 
-		printf("[+] %p image size @ %i\n", ImageBase, ImageSize);
+		ExpOff = NtHdr.OptionalHeader.DataDirectory[0].VirtualAddress;
+		ExpLen = NtHdr.OptionalHeader.DataDirectory[0].Size;
 
-		lpMemoryImage = HeapAlloc(GetProcessHeap(),
-				HEAP_ZERO_MEMORY, ImageSize);
+		Export = HeapAlloc
+	 	( 
+			GetProcessHeap(),
+			HEAP_ZERO_MEMORY,
+			ExpLen
+		);
 
-		if ( lpMemoryImage != NULL ) {
-		  if ( GetPhys(
-		         hDriver,
-			 (ULONG_PTR)lpMemoryImage,
-			 (PULONG_PTR)&pMemoryPtr
-		       ) != TRUE 
-		     )
-		  {
-			  printf("[ ] KeDumpImage: GetPhys() = 0x%x\n",
-					  GetLastError());
-			  goto Cleanup;
-		  };
-
-		  pImageEnd = (LPVOID)(ImageBase + ImageSize);
-
-		  printf("[+] Image End %p\n", pImageEnd);
-
-		  printf("[+] Virtual : %p, Physical: %p\n",
-				  lpMemoryImage, pMemoryPtr);
-
-		  if ( MemCpy(
-		         hDriver,
-			 (ULONG_PTR)lpMemoryImage,
-			 (ULONG_PTR)ImageBase,
-			 ImageSize
-		       ) != TRUE
-		     )
-		  {
-			  printf("[ ] KeDumpImage: MemCpy() = 0x%x\n",
-					  GetLastError());
-			  goto Cleanup;
-		  };
-
-		  printf("[+] Copied %i bytes to %p\n", lpMemoryImage);
-	        };
+		if ( MemCpy(
+			hDriver,
+			(ULONG_PTR)Export,
+			(ULONG_PTR)(ImageBase + ExpOff),
+			ExpLen
+		     ) != TRUE
+		   ) 
+		{
+			printf("[ ] KeDumpImage : 0x%x\n", GetLastError());
+			goto Cleanup;
+		};
 	} else {
 		printf("[ ] KeDumpImage : 0x%x\n", GetLastError());
 	};
@@ -144,5 +127,8 @@ Cleanup:
 	if ( hDriver != INVALID_HANDLE_VALUE )
 		CloseHandle(hDriver);
 
-	return lpMemoryImage;
+	if ( Export != NULL )
+		HeapFree(GetProcessHeap(), 0, Export);
+
+	return NULL;
 };

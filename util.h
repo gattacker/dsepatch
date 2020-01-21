@@ -29,9 +29,8 @@ LPVOID KeGetBase(
 	DWORD * SizeOfImage
 );
 
-LPVOID KeDumpImage(
-	LPVOID ImageBase,
-	DWORD ImageSize
+LPVOID KeGetExport(
+	LPVOID ImageBase
 );
 
 #endif
