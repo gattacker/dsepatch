@@ -1,6 +1,6 @@
 #ifndef _CI_H_
 #define _CI_H_
 
-LPVOID GetCipInit(LPVOID ImageBase);
+LPVOID GetCiOptions1(LPVOID ImageBase);
 
 #endif
