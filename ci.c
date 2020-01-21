@@ -4,7 +4,7 @@
 
 #define PTR(x) ((ULONG_PTR)x)
 
-LPVOID GetCiOptions(LPVOID ImageBase)
+LPVOID GetCipInit(LPVOID ImageBase)
 {
 	HANDLE  hCiLib;
 	LPVOID  fCiInit;
@@ -32,11 +32,11 @@ LPVOID GetCiOptions(LPVOID ImageBase)
 				Distance  = (*(DWORD *)( PTR(fCiInit) + i + 1 ) + 5);
 				fCiInit   = (LPVOID)( PTR(ImageBase) + ( PTR(fCiInit) - PTR(hCiLib) ));
 				fCipInit  = (LPVOID)(fCiInit + i + Distance);
-				break;
+				goto EndLoop;
 			};
 		};
-		printf("[+] CI!CipInitialize @ %p\n", fCipInit);
+EndLoop:
 		FreeLibrary(hCiLib);
 	};
-	return NULL;
+	return fCipInit;
 };
