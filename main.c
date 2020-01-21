@@ -22,17 +22,17 @@ int main(int argc, char **argv)
   RtlSecureZeroMemory(&szTemporaryFolder, MAX_PATH + 1);
   if ( GetTempPathA(MAX_PATH, (PCHAR)&szTemporaryFolder) != 0 )
   {
-    asprintf(&szDriverPath, "%s%s.%s", &szTemporaryFolder, 
-		RandomString(5), "sys");
+    asprintf
+    (
+     	&szDriverPath, "%s%s.%s", 
+	&szTemporaryFolder, 
+	RandomString(5), 
+	"sys"
+    ); DumpToFile(szDriverPath);
 
-    DriverLoaded = FALSE;
-    if ( DumpToFile(szDriverPath) ) {
-      if ( LoadDriver(szDriverPath) != TRUE ) {
-	      goto Cleanup;
-      }
-      DriverLoaded = TRUE;
+    if ( (DriverLoaded = LoadDriver(szDriverPath)) ) {
       printf("[+] %s loaded successfully\n", szDriverPath);
-    }
+    } else { printf("[ ] LoadDriver 0x%x\n", GetLastError()); };
   };
 
 Cleanup:
