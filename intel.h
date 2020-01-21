@@ -22,4 +22,17 @@ typedef struct _GET_PHYS_INFO
   ULONG64 VirtAddr;
 } GET_PHYS_INFO, *LPGET_PHYS_INFO;
 
+BOOL MemCpy(
+	HANDLE hDriver,
+	ULONG64 Destination,
+	ULONG64 Source,
+	ULONG64 Length
+);
+
+BOOL GetPhys(
+	HANDLE hDriver,
+	ULONG64 VirtualAddress,
+	ULONG64 *lpPhysicalAddress
+);
+
 #endif
