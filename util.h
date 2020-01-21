@@ -3,6 +3,10 @@
 
 #define SystemModuleInformation 11
 
+extern ULONG RtlRandomEx(
+	PULONG Seed
+);
+
 typedef struct _SYSTEM_MODULE_ENTRY
 {
 	HANDLE Section;
@@ -24,13 +28,16 @@ typedef struct _SYSTEM_MODULE_INFORMATION
 } SYSTEM_MODULE_INFORMATION, *PSYSTEM_MODULE_INFORMATION;
 
 
-LPVOID KeGetBase(
+LPVOID GetDrvBase(
 	PCHAR szDriverName,
 	DWORD * SizeOfImage
 );
 
-LPVOID KeGetExport(
-	LPVOID ImageBase
+BOOL DumpToFile(
+	PCHAR szDumpPath
 );
 
+PCHAR RandomString(
+	INT MaxLength
+);
 #endif

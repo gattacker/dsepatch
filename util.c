@@ -3,9 +3,9 @@
 #include <winternl.h>
 #include <stdio.h>
 #include "util.h"
-#include "intel.h"
+#include "driver.h"
 
-LPVOID KeGetBase(
+LPVOID GetDrvBase(
 	PCHAR szDriverName,
 	DWORD *SizeOfImage
 )
@@ -52,4 +52,55 @@ LPVOID KeGetBase(
 		HeapFree(GetProcessHeap(), 0, SystemModInfo);
 
 	return ImageBasePtr;
+};
+
+BOOL DumpToFile(
+	PCHAR szDumpPath
+)
+{
+	HANDLE hDriverFile = NULL;
+	DWORD  NumBytes    = 0;
+
+	hDriverFile = CreateFileA(
+		  szDumpPath,
+		  GENERIC_READ | GENERIC_WRITE,
+		  0,
+		  NULL,
+		  CREATE_ALWAYS,
+		  FILE_ATTRIBUTE_NORMAL,
+		  NULL
+	);
+
+	if ( hDriverFile != INVALID_HANDLE_VALUE ) {
+		WriteFile(
+			hDriverFile,
+		  	drv_str_iqvw64e,
+		  	sizeof( drv_str_iqvw64e ),
+		  	&NumBytes,
+			NULL
+		);
+		CloseHandle(hDriverFile);
+		return TRUE;
+	};
+	return FALSE;
+};
+
+PCHAR RandomString(
+	INT MaxLength
+)
+{
+	CHAR  szStringName[MaxLength + 1];
+	ULONG ulSeedCount;
+	PCHAR szStringPtr;
+
+	ulSeedCount = GetTickCount();
+	RtlSecureZeroMemory(&szStringName, MaxLength + 1);
+	for ( int i = 0 ; i < MaxLength ; i++ )
+		szStringName[i] = RtlRandomEx(&ulSeedCount) % 26 + 97;
+
+	szStringPtr = malloc(MaxLength + 1);
+	memset(szStringPtr, '\0', MaxLength + 1);
+	memcpy(szStringPtr, szStringName, MaxLength);
+
+	return szStringPtr;
 };

