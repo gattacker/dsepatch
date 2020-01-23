@@ -25,6 +25,14 @@ LPVOID GetCiOptions1(LPVOID ImageBase)
 		fCiInit = GetProcAddress(hCiLib, "CiInitialize");
 		for ( int i = 0 ; i < 500 ; i++ )
 		{
+			if ( ((PBYTE)fCiInit)[i] == 0xE9 ) {
+				if ( CallCnt != 1 ) {
+					continue;
+				};
+				Distance  = (*(DWORD *)( PTR(fCiInit) + i + 1 ) + 5);
+				fCipInit  = (LPVOID)(fCiInit + i + Distance);
+				goto FoundCipInit;
+			};
 			if ( ((PBYTE)fCiInit)[i] == 0xE8 ) {
 				if ( CallCnt != 1 ) {
 					CallCnt++;
