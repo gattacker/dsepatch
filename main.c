@@ -15,11 +15,37 @@
 
 
 int main(int argc, char **argv)
-{ 
-  if ( argc < 2 ) 
+{
+  ULONG32 Ci_gOptions_n  = 0x1;
+  PCHAR   UnsignedDriver = NULL;
+
+  while ((argc > 1 ) && (argv[1][0] == '-'))
   {
-	  printf("usage: %s [driver.sys]\n", argv[0]);
-	  return 1;
+	switch(argv[1][1])
+	{
+		case 't':
+			++argv;
+			--argc;
+			Ci_gOptions_n = 0xE;
+			break;
+		case 'd':
+			++argc;
+			--argc;
+			UnsignedDriver = strdup(argv[1]);
+			break;
+		case 'h':
+		default:
+			printf("usage: %s -d [driver.sys] [-t]\n", argv[0]);
+			return -1;
+	};
+	++argv;
+	--argc;
+  };
+
+  if ( UnsignedDriver == NULL )
+  {
+	printf("usage: %s -d [driver.sys] [-t]\n", argv[0]);
+	return -1;
   };
 
   BOOL  DriverLoaded;
@@ -37,7 +63,6 @@ int main(int argc, char **argv)
     ); DumpToFile(szDriverPath);
 
     if ( (DriverLoaded = LoadDriver(szDriverPath)) ) {
-      ULONG32 Ci_gOptions_n = 0x1;
       ULONG32 Ci_gOptions_o = 0;
       LPVOID  Ci_MemoryBase = 0;
       LPVOID  Ci_PtrOptions = 0;
